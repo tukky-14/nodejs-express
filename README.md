@@ -23,8 +23,10 @@
     curl -X DELETE localhost:3000/users/1
     ```
 
+<br/>
+
 ### 参考記事
 
-[Express 公式サイト](https://expressjs.com/)
-[Express チュートリアル](https://expressjs.com/ja/guide/routing.html)
-[REST API チュートリアル](https://restfulapi.net/)
+-   [Express 公式サイト](https://expressjs.com/)
+-   [Express チュートリアル](https://expressjs.com/ja/guide/routing.html)
+-   [REST API チュートリアル](https://restfulapi.net/)
