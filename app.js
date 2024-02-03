@@ -1,53 +1,52 @@
-// 必要なモジュールの読み込み
 const express = require('express');
 const app = express();
+app.use(express.json());
 
-// データの保存場所 (ダミーデータ)
-const users = [
-    {
-        id: 1,
-        name: 'John Doe',
-    },
-    {
-        id: 2,
-        name: 'Jane Doe',
-    },
-];
+const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('./database.sqlite3');
 
 // GET /users エンドポイント
 app.get('/users', (req, res) => {
-    // 全ユーザーデータを取得
-    res.json(users);
+    db.all('SELECT * FROM users', (err, rows) => {
+        if (err) {
+            res.status(500).send('An error occurred.');
+            return;
+        }
+
+        res.json(rows);
+    });
 });
 
-// GET /users/:id エンドポイント
-app.get('/users/:id', (req, res) => {
-    // パラメータからユーザーIDを取得
-    const id = parseInt(req.params.id);
+// POST /users エンドポイント
+app.post('/users', (req, res) => {
+    const { name, email } = req.body;
 
-    // ユーザーIDに一致するユーザーデータを取得
-    const user = users.find((user) => user.id === id);
+    db.run('INSERT INTO users (name, email) VALUES (?, ?)', [name, email], (err) => {
+        if (err) {
+            console.log('Error:', err);
+            res.status(500).send('An error occurred.');
+            return;
+        }
 
-    // ユーザーデータが存在する場合
-    if (user) {
-        res.json(user);
-    } else {
-        // ユーザーデータが存在しない場合
-        res.status(404).send('User not found.');
-    }
+        res.status(201).send('User created successfully.');
+    });
+});
+
+// DELETE /users エンドポイント
+app.delete('/users/:id', (req, res) => {
+    const { id } = req.params;
+
+    db.run('DELETE FROM users WHERE id = ?', id, (err) => {
+        if (err) {
+            res.status(500).send('An error occurred.');
+            return;
+        }
+
+        res.status(200).send('User deleted successfully.');
+    });
 });
 
 // サーバーの起動
 app.listen(3000, () => {
     console.log('Server is listening on port 3000');
 });
-
-// ーーーーーーーーーーーーーーーーーーーーーーーーーーーー
-// リクエスト例
-// GET /users
-// curl http://localhost:3000/users
-// [{"id":1,"name":"John Doe"},{"id":2,"name":"Jane Doe"}]
-
-// GET /users/1
-// curl http://localhost:3000/users/1
-// {"id":1,"name":"John Doe"}
